@@ -1,9 +1,13 @@
 package com.handmade.dto;
 
-import lombok.Data;
+import lombok.*;
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class ProductDTO {
     private Long id;
     private String slug;

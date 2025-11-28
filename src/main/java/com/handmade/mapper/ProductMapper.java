@@ -1,20 +1,14 @@
 package com.handmade.mapper;
 
-import com.handmade.dto.ProductCreateDTO;
 import com.handmade.dto.ProductDTO;
-import com.handmade.dto.ProductUpdateDTO;
 import com.handmade.model.Product;
-import org.mapstruct.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.factory.Mappers;
 
-@Mapper(
-        componentModel = "spring",
-        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
-)
+@Mapper
 public interface ProductMapper {
+    ProductMapper INSTANCE = Mappers.getMapper(ProductMapper.class);
 
-    Product toEntity(ProductCreateDTO dto);
-
-    ProductDTO toDTO(Product product);
-
-    void updateFromDTO(ProductUpdateDTO dto, @MappingTarget Product product);
+    ProductDTO toDto(Product product);
+    Product toEntity(ProductDTO productDto);
 }

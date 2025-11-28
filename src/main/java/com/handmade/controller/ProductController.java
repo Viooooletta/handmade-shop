@@ -1,14 +1,11 @@
 package com.handmade.controller;
 
-import com.handmade.dto.ProductCreateDTO;
-import com.handmade.dto.ProductDTO;
-import com.handmade.dto.ProductUpdateDTO;
-import com.handmade.mapper.ProductMapper;
 import com.handmade.model.Product;
-import com.handmade.repository.ProductRepository;
+import com.handmade.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,50 +15,35 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductController {
 
-    private final ProductRepository productRepository;
-    private final ProductMapper productMapper;
+    private final ProductService productService;
 
     @GetMapping
-    public List<ProductDTO> getAllProducts() {
-        return productRepository.findAll()
-                .stream()
-                .map(productMapper::toDTO)
-                .toList();
+    public List<Product> getAllProducts() {
+        return productService.getAllProducts();
     }
 
     @GetMapping("/{id}")
-    public ProductDTO getProductById(@PathVariable Long id) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
-        return productMapper.toDTO(product);
+    public ResponseEntity<Product> getProductById(@PathVariable Long id) {
+        return productService.getProductById(id)
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ProductDTO createProduct(@Valid @RequestBody ProductCreateDTO productDTO) {
-        if (productRepository.existsBySlug(productDTO.getSlug())) {
-            throw new RuntimeException("Product with this slug already exists");
-        }
-
-        Product product = productMapper.toEntity(productDTO);
-        Product savedProduct = productRepository.save(product);
-        return productMapper.toDTO(savedProduct);
+    public Product createProduct(@Valid @RequestBody Product product) {
+        // Валидация/уникальность можно делать в сервисе
+        return productService.saveProduct(product);
     }
 
     @PutMapping("/{id}")
-    public ProductDTO updateProduct(@PathVariable Long id,
-                                    @Valid @RequestBody ProductUpdateDTO productDTO) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
-
-        productMapper.updateFromDTO(productDTO, product);
-        Product updatedProduct = productRepository.save(product);
-        return productMapper.toDTO(updatedProduct);
+    public Product updateProduct(@PathVariable Long id, @Valid @RequestBody Product product) {
+        return productService.updateProduct(id, product);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteProduct(@PathVariable Long id) {
-        productRepository.deleteById(id);
+        productService.deleteProduct(id);
     }
 }

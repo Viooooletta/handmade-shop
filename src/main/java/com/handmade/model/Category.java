@@ -1,2 +1,5 @@
-package com.handmade.model;public class Category {
+package com.handmade.model;
+
+public enum Category {
+    ACCESSORIES, CLOTHING, HOME, ELECTRONICS
 }
